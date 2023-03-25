@@ -59,7 +59,7 @@ flutter:
   uses-material-design: true
 
   assets:
-    - asset/img/mics/
+    - asset/img/misc/
     - asset/img/food/
     - asset/svg/icon/
     - asset/img/logo/

@@ -2,6 +2,7 @@ import 'package:actual/common/const/data.dart';
 import 'package:actual/common/layout/default_layout.dart';
 import 'package:actual/common/view/root_tab.dart';
 import 'package:actual/user/view/login_screen.dart';
+import 'package:dio/dio.dart';
 import 'package:flutter/material.dart';
 
 import '../const/colors.dart';
@@ -25,21 +26,35 @@ class _SplashScreenState extends State<SplashScreen> {
   }
 
   void checkToken() async {
+    // 하루
     final refreshToken = await storage.read(key: REFRESH_TOKEN_KEY);
+    // 5분
     final accessToken = await storage.read(key: ACCESS_TOKEN_KEY);
 
-    // TODO: 토큰이 유효한지도 체크해야 한다.
-    if (refreshToken == null || accessToken == null) {
-      Navigator.of(context).pushAndRemoveUntil(
-          MaterialPageRoute(
-            builder: (_) => LoginScreen(),
-          ),
-          (route) => false,
+    final dio = Dio();
+
+    try {
+      final resp = await dio.post(
+        'http://$ip/auth/token',
+        options: Options(
+          headers: {
+            'authorization': 'Bearer $refreshToken',
+          },
+        ),
       );
-    } else {
+
+      // 홈화면으로 이동
       Navigator.of(context).pushAndRemoveUntil(
         MaterialPageRoute(
           builder: (_) => RootTab(),
+        ),
+            (route) => false,
+      );
+    } catch (e) {
+      // 로그인 화면으로 이동
+      Navigator.of(context).pushAndRemoveUntil(
+        MaterialPageRoute(
+          builder: (_) => LoginScreen(),
         ),
             (route) => false,
       );

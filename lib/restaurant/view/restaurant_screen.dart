@@ -7,11 +7,12 @@ import 'package:dio/dio.dart';
 import 'package:flutter/material.dart';
 
 import '../../common/const/data.dart';
+import '../../common/model/cursor_pagination_model.dart';
 
 class RestaurantScreen extends StatelessWidget {
   const RestaurantScreen({Key? key}) : super(key: key);
 
-  Future<List> paginateRestaurant() async {
+  Future<List<RestaurantModel>> paginateRestaurant() async {
     final dio = Dio();
 
     dio.interceptors.add(
@@ -20,9 +21,10 @@ class RestaurantScreen extends StatelessWidget {
       ),
     );
 
-    final repository = RestaurantRepository(dio, baseUrl: 'http://$ip/restaurant');
+    final resp = await RestaurantRepository(dio, baseUrl: 'http://$ip/restaurant')
+        .paginate();
 
-    return repository.paginate();
+    return resp.data;
   }
 
   @override
@@ -33,7 +35,7 @@ class RestaurantScreen extends StatelessWidget {
           padding: const EdgeInsets.symmetric(horizontal: 16.0),
           child: FutureBuilder(
             future: paginateRestaurant(),
-            builder: (context, AsyncSnapshot<List> snapshot) {
+            builder: (context, AsyncSnapshot<List<RestaurantModel>> snapshot) {
               if (!snapshot.hasData) {
                 return Center(
                   child: CircularProgressIndicator()
@@ -43,12 +45,7 @@ class RestaurantScreen extends StatelessWidget {
               return ListView.separated(
                   itemCount: snapshot.data!.length,
                   itemBuilder: (_, index) {
-                    final item = snapshot.data![index];
-
-                    // parsed
-                    final pItem = RestaurantModel.fromJson(
-                      item,
-                    );
+                    final pItem = snapshot.data![index];
 
                     return GestureDetector(
                       onTap: () {

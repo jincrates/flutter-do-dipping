@@ -1,6 +1,9 @@
 import 'package:flutter/cupertino.dart';
+import 'package:json_annotation/json_annotation.dart';
 
 import '../../common/const/data.dart';
+
+part 'restaurant_model.g.dart';
 
 enum RestaurantPriceRange {
   expensive,
@@ -8,9 +11,14 @@ enum RestaurantPriceRange {
   cheap,
 }
 
+@JsonSerializable()
 class RestaurantModel {
   final String id;
   final String name;
+  @JsonKey(
+    fromJson: pathToUrl,
+    //toJson: ,
+  )
   final String thumbUrl;
   final List<String> tags;
   final RestaurantPriceRange priceRange;
@@ -31,6 +39,17 @@ class RestaurantModel {
     required this.deliveryFee
   });
 
+  factory RestaurantModel.fromJson(Map<String, dynamic> json)
+  => _$RestaurantModelFromJson(json);
+
+  Map<String, dynamic> toJson()
+  => _$RestaurantModelToJson(this);
+
+  static pathToUrl(String value) {
+    return 'http://$ip$value';
+  }
+
+  /*
   factory RestaurantModel.fromJson({
     required Map<String, dynamic> json,
   }) {
@@ -48,4 +67,5 @@ class RestaurantModel {
       deliveryFee: json['deliveryFee'],
     );
   }
+  */
 }
